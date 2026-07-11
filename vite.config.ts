@@ -1,5 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
@@ -12,10 +12,18 @@ export default defineConfig({
 				runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-			// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-			adapter: adapter()
+			// Static prerendered build for GitHub Pages.
+			adapter: adapter({
+				pages: 'build',
+				assets: 'build',
+				fallback: '404.html',
+				precompress: false,
+				strict: true
+			}),
+			paths: {
+				// dev -> ""; CI deploy sets BASE_PATH (project page -> "/repo", root -> "")
+				base: process.argv.includes('dev') ? '' : process.env.BASE_PATH || ''
+			}
 		})
 	]
 });
